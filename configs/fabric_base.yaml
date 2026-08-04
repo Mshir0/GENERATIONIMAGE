@@ -1,0 +1,40 @@
+seed: 2026
+model_path: /path/to/stable-diffusion-v1-5
+device: cuda:0
+steps: 50
+guidance_scale: 7.5
+prompt:
+  normal: a close-up photo of printed textile fabric
+  defect: a close-up photo of printed textile fabric with {defect}
+  negative: pristine, flawless, clean, uniform printing, no defect
+roi:
+  enabled: true
+  model_size: 512
+  min_defect_px: 24
+  context_ratio: 3.0
+  min_crop_size: 64
+fusion:
+  enabled: true
+  wavelet: db2
+  levels: 2
+  feather_radius: 5
+  lambda_high:
+    stain: 0.95
+    ink_smear: 0.75
+    white_spot: 0.70
+    nozzle_line: 0.85
+    banding: 0.90
+routes:
+  nozzle_line: procedural
+  banding: procedural
+  white_spot: procedural
+  speckle: procedural
+  stain: o2mag
+  ink_smear: o2mag
+mask_defaults:
+  direction: vertical
+  width: [1, 4]
+  period: [18, 60]
+  count: [1, 8]
+  radius: [2, 10]
+

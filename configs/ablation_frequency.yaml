@@ -1,0 +1,6 @@
+base: fabric_base.yaml
+roi:
+  enabled: false
+fusion:
+  enabled: true
+
