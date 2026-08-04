@@ -29,30 +29,52 @@ pip install -e '.[o2mag,eval,dev]'
 
 ## 运行
 
+使用 Python 脚本检查远程环境：
+
+```bash
+python scripts/check_environment.py --model-path /data/models/stable-diffusion-v1-5
+```
+
+验证一个或多个 manifest，包括文件、mask 和跨花型泄漏：
+
+```bash
+python scripts/validate_manifest.py data/train.jsonl data/val.jsonl data/test.jsonl
+```
+
 先验证无需模型的程序化路径：
 
 ```bash
-fabric-generate --config configs/fabric_base.yaml --manifest data/train.jsonl \
-  --output runs/procedural --routes procedural
+python scripts/run_experiment.py \
+  --config configs/fabric_base.yaml \
+  --manifest data/train.jsonl \
+  --output runs/procedural \
+  --route procedural \
+  --evaluate
 ```
 
 运行完整方法：
 
 ```bash
-fabric-generate --config configs/fabric_base.yaml --manifest data/train.jsonl \
-  --output runs/full
+python scripts/run_experiment.py \
+  --config configs/fabric_base.yaml \
+  --manifest data/train.jsonl \
+  --output runs/full \
+  --evaluate
 ```
 
-生成质量评价：
+检查输出是否完整并打印指标：
 
 ```bash
-fabric-evaluate --manifest runs/full/manifest.jsonl --output runs/full/metrics.json
+python scripts/inspect_run.py runs/full
 ```
 
 按花型划分数据，避免同花型泄漏：
 
 ```bash
-fabric-split --manifest data/all.jsonl --output-dir data/splits --seed 2026
+python -m fabric_o2mag.split \
+  --manifest data/all.jsonl \
+  --output-dir data/splits \
+  --seed 2026
 ```
 
 ## 输出
