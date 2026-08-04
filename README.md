@@ -35,6 +35,20 @@ pip install -e '.[o2mag,eval,dev]'
 python scripts/check_environment.py --model-path /data/models/stable-diffusion-v1-5
 ```
 
+如果模型位于 Hugging Face 缓存目录，自动选择完整 snapshot 并生成远程配置：
+
+```bash
+python scripts/configure_model.py
+```
+
+该脚本默认读取：
+
+```text
+/mnt/sda1/HuggingfaceDownload/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5
+```
+
+并生成 `configs/fabric_remote.yaml`。后续实验将 `--config` 指向该文件即可。
+
 验证一个或多个 manifest，包括文件、mask 和跨花型泄漏：
 
 ```bash
