@@ -12,7 +12,7 @@
 ```bash
 conda create -n generationimage python=3.10 -y
 conda activate generationimage
-pip install -e '.[o2mag,eval,dev]'
+pip install -r requirements.txt
 ```
 
 下载 Stable Diffusion 1.5 权重后，将 `configs/fabric_base.yaml` 中的 `model_path` 改为本地目录。代码不会自动下载模型，适合离线服务器。
@@ -85,7 +85,7 @@ python scripts/inspect_run.py runs/full
 按花型划分数据，避免同花型泄漏：
 
 ```bash
-python -m fabric_o2mag.split \
+python scripts/split_dataset.py \
   --manifest data/all.jsonl \
   --output-dir data/splits \
   --seed 2026

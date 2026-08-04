@@ -5,18 +5,35 @@ from __future__ import annotations
 
 import argparse
 import json
+from copy import deepcopy
 from pathlib import Path
 
 import yaml
-
-from fabric_o2mag.config import load_config
-
 
 DEFAULT_CACHE_ROOT = Path(
     "/mnt/sda1/HuggingfaceDownload/hub/"
     "models--stable-diffusion-v1-5--stable-diffusion-v1-5"
 )
 REQUIRED_ENTRIES = ("model_index.json", "scheduler", "text_encoder", "tokenizer", "unet", "vae")
+
+
+def merge_config(base: dict, override: dict) -> dict:
+    result = deepcopy(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = merge_config(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+
+def load_config(path: Path) -> dict:
+    path = path.resolve()
+    config = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    base_name = config.pop("base", None)
+    if base_name:
+        config = merge_config(load_config(path.parent / base_name), config)
+    return config
 
 
 def missing_entries(snapshot: Path) -> list[str]:
@@ -108,4 +125,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
