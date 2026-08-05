@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -39,12 +40,31 @@ def main() -> int:
     )
     pipeline = FabricGenerationPipeline(config, args.output)
     allowed = None if args.route == "all" else {args.route}
-    records, failures = [], []
-    for sample in tqdm(read_manifest(args.manifest), desc="Generating"):
+    samples = read_manifest(args.manifest)
+    configured_routes = Counter(
+        config.get("routes", {}).get(sample.defect_type, "procedural") for sample in samples
+    )
+    print(f"Configured routes: {dict(configured_routes)}")
+    if allowed and not any(route in allowed for route in configured_routes):
+        print(
+            f"FAILED: no manifest samples are configured for route {args.route!r}. "
+            "Regenerate the remote config or choose the configured route."
+        )
+        return 2
+
+    records, failures, skipped = [], [], []
+    for sample in tqdm(samples, desc="Generating"):
         try:
             records.append(pipeline.generate(sample, allowed))
         except RuntimeError as exc:
             if "disabled by --routes" in str(exc):
+                skipped.append(
+                    {
+                        "sample_id": sample.sample_id,
+                        "defect_type": sample.defect_type,
+                        "reason": str(exc),
+                    }
+                )
                 continue
             failures.append({"sample_id": sample.sample_id, "error": str(exc)})
             if not args.continue_on_error:
@@ -56,6 +76,7 @@ def main() -> int:
 
     write_jsonl(args.output / "manifest.jsonl", records)
     (args.output / "failures.json").write_text(json.dumps(failures, indent=2), encoding="utf-8")
+    (args.output / "skipped.json").write_text(json.dumps(skipped, indent=2), encoding="utf-8")
     if args.evaluate and records:
         samples = [evaluate_record(record) for record in tqdm(records, desc="Evaluating")]
         numeric = [key for key in samples[0] if key not in {"sample_id", "defect_type"}]
@@ -65,7 +86,11 @@ def main() -> int:
         )
     print(f"Completed: {len(records)}")
     print(f"Failed: {len(failures)}")
+    print(f"Skipped: {len(skipped)}")
     print(f"Output: {args.output.resolve()}")
+    if not records and skipped:
+        print("FAILED: every sample was skipped by the route filter")
+        return 2
     return 1 if failures else 0
 
 
