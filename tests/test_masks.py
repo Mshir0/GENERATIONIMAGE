@@ -10,3 +10,15 @@ def test_masks_are_reproducible_and_nonempty():
         assert first.mask.any()
         assert np.array_equal(first.mask, second.mask)
 
+
+def test_white_spot_stays_inside_placement_region():
+    placement = np.zeros((128, 128), dtype=np.uint8)
+    placement[30:100, 40:110] = 255
+    result = generate_process_mask(
+        (128, 128),
+        "white_spot",
+        np.random.default_rng(11),
+        {"count": 1, "radius": [4, 7], "placement": {"edge_margin": 3}},
+        placement_mask=placement,
+    )
+    assert np.all(placement[result.mask > 0] > 0)

@@ -45,3 +45,13 @@ mask_defaults:
   period: [18, 60]
   count: [1, 8]
   radius: [2, 10]
+mask_by_type:
+  white_spot:
+    count: [1, 1]
+    radius: [3, 7]
+    placement:
+      mode: dark_regions
+      luminance_max: 90
+      min_component_area: 120
+      close_kernel: 9
+      edge_margin: 3

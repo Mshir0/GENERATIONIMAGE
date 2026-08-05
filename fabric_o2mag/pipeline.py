@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 
 from .fusion import strict_composite, wavelet_fuse
-from .masks import generate_process_mask
+from .masks import build_placement_mask, generate_process_mask
 from .procedural import render_procedural
 from .roi import extract_roi, paste_roi, plan_roi
 from .schemas import Sample
@@ -32,9 +32,24 @@ class FabricGenerationPipeline:
         rng = np.random.default_rng(sample.seed)
         normal = Image.open(sample.normal_path).convert("RGB")
         defaults = self.config.get("mask_defaults", {})
-        mask_params = {**defaults, **sample.parameters.get("mask", {})}
+        type_defaults = self.config.get("mask_by_type", {}).get(sample.defect_type, {})
+        mask_params = {**defaults, **type_defaults, **sample.parameters.get("mask", {})}
+        placement_config = mask_params.get("placement")
+        placement_mask = None
+        if placement_config:
+            explicit_mask_path = placement_config.get("mask_path")
+            if explicit_mask_path:
+                placement_mask = np.asarray(
+                    Image.open(explicit_mask_path).convert("L").resize(normal.size, Image.Resampling.NEAREST)
+                )
+            else:
+                placement_mask = build_placement_mask(np.asarray(normal), placement_config)
         generated_mask = generate_process_mask(
-            (normal.height, normal.width), sample.defect_type, rng, mask_params
+            (normal.height, normal.width),
+            sample.defect_type,
+            rng,
+            mask_params,
+            placement_mask=placement_mask,
         )
         mask = Image.fromarray(generated_mask.mask, mode="L")
         route = self.config.get("routes", {}).get(sample.defect_type, "procedural")
