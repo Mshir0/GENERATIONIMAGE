@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 `nozzle_line`、`banding`、`speckle` 可不提供参考图；`white_spot`、`stain`、`ink_smear` 的 O2MAG 路径需要参考图和参考 mask。`white_spot` 默认表示黑色印花区域上的小面积漏印白斑。
 
-`white_spot` 会根据目标正常图的亮度自动提取黑色印花区域，并将目标白点随机放在黑色区域内部。不同记录使用不同 `seed` 即可在同一张正常图上得到不同位置。也可以在 `parameters.mask.placement.mask_path` 中提供人工绘制的允许区域 mask。
+`white_spot` 默认在整张目标图的有效边界内均匀随机放置，不读取颜色、花型或纹理内容。不同记录使用不同 `seed` 即可在同一张正常图上得到不同且可复现的位置。如需限制位置，也可以将 `placement.mode` 改为 `dark_regions`，或在 `parameters.mask.placement.mask_path` 中提供人工允许区域 mask。
 
 为一个正常图目录批量创建不同随机位置的白点任务：
 

@@ -8,11 +8,11 @@ prompt:
   defect: a close-up photo of printed textile fabric with {defect}
   negative: pristine, flawless, clean, uniform printing, no defect
   normal_by_type:
-    white_spot: a close-up photo of digitally printed floral textile fabric with a solid black leaf motif
+    white_spot: a close-up photo of clean digitally printed floral textile fabric
   defect_by_type:
-    white_spot: a close-up photo of digitally printed floral textile fabric with a small irregular white missing-ink spot on the black leaf
+    white_spot: a close-up photo of digitally printed floral textile fabric with a single small irregular white missing-ink spot on the printed surface
   negative_by_type:
-    white_spot: large white patch, multiple white spots, white object, hole, tear, stain, recolored leaf, distorted floral pattern, damaged fabric weave, blurry texture
+    white_spot: large white patch, multiple white spots, white object, hole, tear, stain, recolored pattern, distorted floral pattern, damaged fabric weave, blurry texture
   focus_word_by_type:
     white_spot: spot
 roi:
@@ -50,8 +50,5 @@ mask_by_type:
     count: [1, 1]
     radius: [3, 7]
     placement:
-      mode: dark_regions
-      luminance_max: 90
-      min_component_area: 120
-      close_kernel: 9
+      mode: anywhere
       edge_margin: 3
