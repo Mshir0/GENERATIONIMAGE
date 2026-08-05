@@ -7,6 +7,14 @@ prompt:
   normal: a close-up photo of printed textile fabric
   defect: a close-up photo of printed textile fabric with {defect}
   negative: pristine, flawless, clean, uniform printing, no defect
+  normal_by_type:
+    white_spot: a close-up photo of digitally printed floral textile fabric with a solid black leaf motif
+  defect_by_type:
+    white_spot: a close-up photo of digitally printed floral textile fabric with a small irregular white missing-ink spot on the black leaf
+  negative_by_type:
+    white_spot: large white patch, multiple white spots, white object, hole, tear, stain, recolored leaf, distorted floral pattern, damaged fabric weave, blurry texture
+  focus_word_by_type:
+    white_spot: spot
 roi:
   enabled: true
   model_size: 512
@@ -27,7 +35,7 @@ fusion:
 routes:
   nozzle_line: procedural
   banding: procedural
-  white_spot: procedural
+  white_spot: o2mag
   speckle: procedural
   stain: o2mag
   ink_smear: o2mag
@@ -37,4 +45,3 @@ mask_defaults:
   period: [18, 60]
   count: [1, 8]
   radius: [2, 10]
-

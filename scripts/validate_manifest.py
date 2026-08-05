@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 
 
-O2MAG_TYPES = {"stain", "ink_smear"}
+O2MAG_TYPES = {"stain", "ink_smear", "white_spot"}
 SUPPORTED_TYPES = {"nozzle_line", "banding", "white_spot", "speckle", *O2MAG_TYPES}
 
 
@@ -115,4 +115,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

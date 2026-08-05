@@ -25,7 +25,7 @@ pip install -r requirements.txt
 {"sample_id":"p001_0001","pattern_id":"p001","normal_path":"/data/normal/1.png","reference_path":"/data/real_defect/stain/1.png","reference_mask_path":"/data/real_defect/stain/1_mask.png","defect_type":"stain","split":"train","seed":2026}
 ```
 
-`nozzle_line`、`banding`、`white_spot` 可不提供参考图；`stain`、`ink_smear` 的 O2MAG 路径需要参考图和参考 mask。
+`nozzle_line`、`banding`、`speckle` 可不提供参考图；`white_spot`、`stain`、`ink_smear` 的 O2MAG 路径需要参考图和参考 mask。`white_spot` 默认表示黑色印花区域上的小面积漏印白斑。
 
 ## 运行
 

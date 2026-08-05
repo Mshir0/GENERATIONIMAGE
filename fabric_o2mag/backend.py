@@ -68,6 +68,15 @@ class O2MAGBackend:
         defect_prompt = self.prompt_config.get(
             "defect", "a close-up photo of printed textile fabric with {defect}"
         ).format(defect=defect_label)
+        normal_prompt = self.prompt_config.get("normal_by_type", {}).get(
+            defect_type, normal_prompt
+        )
+        defect_prompt = self.prompt_config.get("defect_by_type", {}).get(
+            defect_type, defect_prompt
+        )
+        negative_prompt = self.prompt_config.get("negative_by_type", {}).get(
+            defect_type, self.prompt_config.get("negative", "")
+        )
         prompts = [defect_prompt, normal_prompt, defect_prompt]
         ref_latent, ref_history = self.pipe.invert(
             reference_t, "", self.steps, self.guidance, return_intermediates=True
@@ -75,7 +84,9 @@ class O2MAGBackend:
         src_latent, src_history = self.pipe.invert(
             normal_t, "", self.steps, self.guidance, return_intermediates=True
         )
-        focus_word = defect_label.split()[-1]
+        focus_word = self.prompt_config.get("focus_word_by_type", {}).get(
+            defect_type, defect_label.split()[-1]
+        )
         equalizer = get_equalizer(defect_prompt, (focus_word,), (100,), self.pipe.tokenizer).to(
             self.device
         )
@@ -102,7 +113,7 @@ class O2MAGBackend:
             guidance_scale=self.guidance,
             ref_intermediate_latents=[ref_history, src_history],
             lbl=self.LocalBlend(target_mask_t),
-            neg_prompt=self.prompt_config.get("negative", ""),
+            neg_prompt=negative_prompt,
             mask_r=reference_mask_t,
             mask_t=target_mask_t,
             output_type="pt",
