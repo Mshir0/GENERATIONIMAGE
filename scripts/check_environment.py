@@ -24,6 +24,13 @@ REQUIRED_PACKAGES = {
 }
 
 MODEL_ENTRIES = ("model_index.json", "scheduler", "text_encoder", "tokenizer", "unet", "vae")
+EXPECTED_VERSIONS = {
+    "diffusers": "0.29.2",
+    "transformers": "4.26.1",
+    "huggingface_hub": "0.23.4",
+    "tokenizers": "0.13.3",
+    "safetensors": "0.4.3",
+}
 
 
 def package_version(module) -> str:
@@ -48,6 +55,10 @@ def main() -> int:
             module = importlib.import_module(import_name)
             imported[import_name] = module
             print(f"  [OK] {label}: {package_version(module)}")
+            expected = EXPECTED_VERSIONS.get(import_name)
+            installed = package_version(module)
+            if expected and installed != expected:
+                errors.append(f"{label} must be {expected}, but {installed} is installed")
         except Exception as exc:
             errors.append(f"Cannot import {label}: {exc}")
             print(f"  [FAIL] {label}: {exc}")
@@ -90,4 +101,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

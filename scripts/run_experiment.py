@@ -7,6 +7,7 @@ import argparse
 import json
 import sys
 from collections import Counter
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import numpy as np
@@ -23,6 +24,32 @@ from fabric_o2mag.manifest import read_manifest, write_jsonl
 from fabric_o2mag.pipeline import FabricGenerationPipeline
 
 
+EXPECTED_RUNTIME = {
+    "diffusers": "0.29.2",
+    "transformers": "4.26.1",
+    "huggingface-hub": "0.23.4",
+    "tokenizers": "0.13.3",
+    "safetensors": "0.4.3",
+}
+
+
+def validate_runtime() -> list[str]:
+    errors = []
+    if sys.version_info[:2] != (3, 10):
+        errors.append(
+            f"Python 3.10 is required, but this interpreter is {sys.version.split()[0]}"
+        )
+    for distribution, expected in EXPECTED_RUNTIME.items():
+        try:
+            installed = version(distribution)
+        except PackageNotFoundError:
+            errors.append(f"{distribution} is not installed (required: {expected})")
+            continue
+        if installed != expected:
+            errors.append(f"{distribution}=={expected} is required, but {installed} is installed")
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, type=Path)
@@ -32,6 +59,14 @@ def main() -> int:
     parser.add_argument("--evaluate", action="store_true")
     parser.add_argument("--continue-on-error", action="store_true")
     args = parser.parse_args()
+
+    runtime_errors = validate_runtime()
+    if runtime_errors:
+        print("FAILED: incompatible O2MAG runtime")
+        for error in runtime_errors:
+            print(f"  - {error}")
+        print("Create a clean Python 3.10 environment and install requirements.txt")
+        return 3
 
     config = load_config(args.config)
     args.output.mkdir(parents=True, exist_ok=True)
