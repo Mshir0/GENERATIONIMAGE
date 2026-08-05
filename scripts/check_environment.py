@@ -30,6 +30,8 @@ EXPECTED_VERSIONS = {
     "huggingface_hub": "0.23.4",
     "tokenizers": "0.13.3",
     "safetensors": "0.4.3",
+    "torch": "2.7.1+cu128",
+    "torchvision": "0.22.1+cu128",
 }
 
 
@@ -73,10 +75,16 @@ def main() -> int:
     else:
         print(f"  [OK] PyTorch CUDA: {torch.version.cuda}")
         print(f"  [OK] GPU count: {torch.cuda.device_count()}")
+        supported_arches = set(getattr(torch.cuda, "get_arch_list", lambda: [])())
         for index in range(torch.cuda.device_count()):
             properties = torch.cuda.get_device_properties(index)
             memory_gib = properties.total_memory / 1024**3
-            print(f"  [OK] cuda:{index}: {properties.name}, {memory_gib:.1f} GiB")
+            capability = f"sm_{properties.major}{properties.minor}"
+            if supported_arches and capability not in supported_arches:
+                errors.append(f"PyTorch does not contain kernels for cuda:{index} ({capability})")
+                print(f"  [FAIL] cuda:{index}: {properties.name}, {capability} unsupported")
+            else:
+                print(f"  [OK] cuda:{index}: {properties.name}, {memory_gib:.1f} GiB, {capability}")
 
     if args.model_path:
         model_path = args.model_path.expanduser().resolve()

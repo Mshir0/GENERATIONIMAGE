@@ -27,6 +27,7 @@ class O2MAGBackend:
             beta_schedule="scaled_linear",
             clip_sample=False,
             set_alpha_to_one=False,
+            steps_offset=1,
         )
         self.pipe = McaPipeline_Replace.from_pretrained(
             str(Path(config["model_path"]).expanduser()), scheduler=scheduler

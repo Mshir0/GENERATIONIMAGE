@@ -19,7 +19,12 @@ import torch.nn.functional as F
 from PIL import Image, ImageDraw, ImageFont
 import cv2
 from typing import Optional, Union, Tuple, List, Callable, Dict
-from IPython.display import display
+try:
+    from IPython.display import display
+except ImportError:
+    # Visualization is optional for batch generation.
+    def display(_image):
+        return None
 from tqdm.notebook import tqdm
 import random
 from collections import deque

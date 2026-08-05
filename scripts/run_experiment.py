@@ -30,6 +30,8 @@ EXPECTED_RUNTIME = {
     "huggingface-hub": "0.23.4",
     "tokenizers": "0.13.3",
     "safetensors": "0.4.3",
+    "torch": "2.7.1+cu128",
+    "torchvision": "0.22.1+cu128",
 }
 
 
